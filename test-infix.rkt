@@ -49,12 +49,8 @@
 (check-within ($ √ '4 !) (√ (! 4)) 1e-10)
 (check-expect (let ((+ 2) (- 3)) ($ + * -)) 6)
 (check-expect ($ €(list 1 ($ 1 + 1) ($ 1 + 2))) '(1 2 3))
-(check-error ($ - 'a) "-: contract violation
-  expected: number?
-  given: a")
-(check-error ($ 3.0 !) "!: contract violation
-  expected: exact-nonnegative-integer?
-  given: 3.0")
+(check-error ($ - 'a) "-: contract violation\n  expected: number?\n  given: a")
+(check-error ($ 3.0 !) "!: contract violation\n  expected: exact-nonnegative-integer?\n  given: 3.0")
 (check-expect ($ 2 expt 3) 8)
 (check-expect ($ sqrt (1 + 3)) 2)
 (check-expect ($ sqrt add1(3)) 2)
