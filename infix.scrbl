@@ -4,7 +4,8 @@
 @(require (only-in scribble/eval interaction))
 @title{Embedding infix notation in Racket}
 @author{Jacob J. A. Koot}
-@(defmodule "infix.rkt" #:packages ())
+@;@(defmodule "infix.rkt" #:packages ())
+@(defmodule infix/infix #:packages ()) 
 
 @(define => (string (integer->char 8658)))
 
@@ -34,32 +35,32 @@ allow infix notation to be embedded in Racket programs.
            (code:line √ element)
            (code:line element !)
            (code:line
-            Ʃ(symb = infix-expr @#,(litchar ",")infix-expr [@#,(litchar ",")infix-expr]) element)
+            Ʃ(id = infix-expr @#,(litchar ",")infix-expr [@#,(litchar ",")infix-expr]) element)
            (code:line
-            Π(symb = infix-expr @#,(litchar ",")infix-expr [@#,(litchar ",")infix-expr]) element)]
+            Π(id = infix-expr @#,(litchar ",")infix-expr [@#,(litchar ",")infix-expr]) element)]
           [token
            (code:line atom)
-           (code:line symb)
-           (code:line symb arglist
-                      (code:comment @#,t{@=> (symb ($ arg) ...); function or macro call}))
+           (code:line id)
+           (code:line id arglist
+                      (code:comment @#,t{@=> (id ($ arg) ...); function or macro call}))
            (code:line € sexpr (code:comment @#,t{=> sexpr}))
            (code:line € sexpr arglist
                       (code:comment @#,t{@=> (sexpr ($ arg) ...); function or macro call}))
-           (code:line @#,(litchar "'") sexpr
+           (code:line @#,(litchar "'")sexpr
                       (code:comment @#,t{@=> 'sexpr ; not transformed}))
-           (code:line @#,(litchar "`") sexpr
+           (code:line @#,(litchar "`")sexpr
                       (code:comment @#,t{@=> @litchar{`sexpr} ; not transformed, although})
                       (code:comment @#,t{@racket[$] can be called in @racket[unquote]d parts.}))]
           [arglist () (ne-arglist)]
           [ne-arglist arg (code:line ne-arglist @#,(litchar ",") arg)]
           [arg infix-expr])
          #:contracts(
-          [symb
-(code:line @#,(litchar "symbol not") @#,racket[free-identifier=?] @#,(litchar "with an operator"))]
+          [id
+(code:line @#,(litchar "id not") @#,racket[free-identifier=?] @#,(litchar "with an operator"))]
           [sexpr
            (code:line @#,(litchar "symbolic expression"))]
           [atom
-           (code:line @#,(litchar "symbolic expression, but not a symbol nor a list"))])]{
+           (code:line @#,(litchar "symbolic expression, but not an id nor a list"))])]{
 Transforms infix-expr to a corresponding Racket prefix-expr that computes
 the value of the infix-expr. For example: }
 
@@ -172,7 +173,7 @@ From high to low the precedence of operators is:
    @elem[@code{+ -}]
    "where used diadically"))]
 
-A prefix-expr consists of terms. Every term, the first one excepted,
+An infix-expr consists of terms. Every term, the first one excepted,
 must begin with a sign. The first one can have a sign, though.
 There is no need to give diadic @racket[+] and diadic
 @racket[-] distinct precedences. In fact an infix-expr is parsed as a sequence of terms.
@@ -200,22 +201,22 @@ The distinction is explained by the following examples:
 
 The summation
 
-@code{Ʃ(symb = from-expr, to-expr, step-expr) body-element}
+@code{Ʃ(id = from-expr, to-expr, step-expr) body-element}
 
 is expanded to a simplified version of:
 
 @racketblock[
-(for/sum ((symb (in-range from-expr to-expr step-expr)))
+(for/sum ((id (in-range from-expr to-expr step-expr)))
  ($ body-element))]
 
 and the product
 
-@code{Π(symb = from-expr, to-expr, step-expr) body-element}
+@code{Π(id = from-expr, to-expr, step-expr) body-element}
 
 to a simplified form of:
 
 @racketblock[
-(for/product ((symb (in-range from-expr to-expr step-expr)))
+(for/product ((id (in-range from-expr to-expr step-expr)))
  ($ body-element))]
 
 @racket[Ʃ] and @racket[Π] forms are expanded to tail recursive loops.
@@ -249,7 +250,7 @@ In the above grammar a space in the right hand side of a rule indicates that
 white space is required if it is not adjacent to a delimiter.
 Additional white space is allowed before
 and after every delimiter.
-Comma’s (@code{unquote}) are used as separator in arglists.
+Comma’s (@code{unquote}) are used as separator in arglists.@(linebreak)
 For example:
 
 @code{($ a(b,c,d + e))} and @code{($ a(b(unquote c)(unquote d) + e))}
@@ -266,9 +267,9 @@ the spaces and @racket[*] cannot be omitted:
 
 @code{($ √(b^2-4ac))} @=> @code{(sqrt b^2-4ac)}
 
-because @racket[$] accepts every symbol
+because @racket[$] accepts every id
 (not @racket[free-identifier=?] with an operator) as a variable.
-Hence @code{b^2-4ac} is parsed as one singe symbol.
+Hence @code{b^2-4ac} is parsed as one singe id.
 Operator @racket[*] cannot be omitted.
 Allowing @racket[*] to be omitted would introduce ambiguity, for example:
 
@@ -351,7 +352,7 @@ All parsing is done with the powerfull matching capabilities of @racket[syntax-c
   (list "" @elem["although " @racket[$] " may escape from this inhibition. For example:"])
   (list "" @elem[@racket[($ € ($ infix-expr))] " does the same as " @racket[($ infix-expr)]"."]))]
     
-Syntax @racket[$] accepts all symbols @racket[free-identifier=?] with
+Syntax @racket[$] accepts all ids @racket[free-identifier=?] with
 @racket[+ - * / √ ^ € Ʃ Π quote unquote quasiquote] as operators. Notice that Racket reads
 @bold{@litchar{'}}@code{sexpr} as @code{(quote sexpr)},
 @bold{@litchar{`}}@code{sexpr} as @code{(quasiquote sexpr)} and
