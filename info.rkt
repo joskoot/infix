@@ -2,5 +2,5 @@
 
 ; By Jacob J. A. Koot
 
-(define scribblings '(("info.scrbl" ())))
+(define scribblings '(("info.rkt" ())))
 (define collection "infix")
