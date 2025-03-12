@@ -178,7 +178,6 @@ must begin with a sign. The first one can have a sign, though.
 There is no need to give diadic @racket[+] and diadic
 @racket[-] distinct precedences. In fact an infix-expr is parsed as a sequence of terms.
 Positive terms come in the plus, the negative ones in the minus.
-This makes the diadic minus sign right associative.
 
 In a term diadic @racket[*] has precedence over diadic @racket[/].
 A factor is in the numerator cq denominator if
@@ -187,7 +186,6 @@ within its term it is preceeded by an even cq odd number of @racket[/]
 Operator @racket[*], both monadic and diadic, leaves the factor in its place
 (numerator or denominator).
 @racket[/], both monadic and diadic, is a switch between numerator and denominator.
-This makes division right associative.
 Within a term, diadic @racket[*] and diadic @racket[/] are not treated in the
 same way as the diadic @racket[+] and diadic @racket[-] in an addition.
 The distinction is explained by the following examples:
@@ -323,7 +321,6 @@ A term is parsed by finding the factors of the numerator and the denominator.
 A factor is in the numerator c.q. the denominator if,
 within and at the parentheses nesting level of the term it belongs to,
 the number of preceding / is even c.q. odd.
-This makes division right associative.
 The term is transformed to:
 
 @racket[(/ (* numerator numerator ...) denominator denominator ...)]
